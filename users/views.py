@@ -13,12 +13,6 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        obj = super().get_object()
-        if obj != self.request.user:
-            raise PermissionDenied("Нельзя смотреть чужой профиль")
-        return obj
-
     def get_serializer_class(self):
         if self.action == 'list':
             return PublicUserSerializer
