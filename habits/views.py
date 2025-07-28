@@ -1,3 +1,27 @@
-from django.shortcuts import render
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.viewsets import ModelViewSet
 
-# Create your views here.
+from habits.models import Habit
+from habits.pagination import MyPagination
+from habits.serializers import HabitSerializer, PublicHabitSerializer
+
+
+class HabitViewSet(ModelViewSet):
+    queryset = Habit.objects.all()
+    serializer_class = HabitSerializer
+    pagination_class = MyPagination
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Получаем привычки только текущего пользователя
+        return Habit.objects.filter(user=self.request.user)
+
+
+
+class PublicHabitViewSet(ModelViewSet):
+    queryset = Habit.objects.filter(public=True)
+    serializer_class = PublicHabitSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = MyPagination
+    http_method_names = ['get']
