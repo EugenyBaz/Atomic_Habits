@@ -17,6 +17,11 @@ class HabitViewSet(ModelViewSet):
         # Получаем привычки только текущего пользователя
         return Habit.objects.filter(user=self.request.user)
 
+    def perform_create(self, serializer):
+        habit = serializer.save()
+        habit.owner = self.request.user
+        habit.save()
+
 
 
 class PublicHabitViewSet(ModelViewSet):

@@ -27,6 +27,8 @@ class Habit(models.Model):
         # Признак публичности — привычки можно публиковать в общий доступ, чтобы другие пользователи могли брать в пример чужие привычки.
     public = models.BooleanField(default=False, verbose_name="Признак публичности")
 
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Владелец привычки", related_name='owned_habits')
+
     def clean(self):
         super().clean()  # Запускает автоматические валидаторы для всех полей
         validator = RelatedAndRewardValidator()
