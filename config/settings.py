@@ -120,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -184,7 +184,7 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BEAT_SCHEDULE = {
     "send_message": {
         "task": "habits.tasks.send_message_start_actions",  # Путь к задаче
-        "schedule": crontab(minute=1),
+        "schedule": crontab(),
     },
 }
 
