@@ -1,11 +1,14 @@
 from datetime import datetime
-
 from django.urls import reverse
-from rest_framework import status
+from rest_framework import status, settings
 from rest_framework.test import APITestCase
-
+import pytest
 from habits.models import Habit
+from habits.services import send_telegram_message
 from users.models import User
+import requests
+from unittest.mock import patch
+from config import settings
 
 
 class HabitTestCase(APITestCase):
@@ -59,42 +62,89 @@ class HabitTestCase(APITestCase):
         self.assertEqual(new_habit.place, data['place'])
         self.assertEqual(new_habit.action, data['action'])
 
-    # def test_lesson_retrieve(self):
-    #     url = reverse("lms:lesson_retrieve", args=(self.lesson.pk,))
-    #     response = self.client.get(url)
-    #     data = response.json()
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(data.get("name"), self.lesson.name)
-    #
 
-    #
-    # def test_lesson_update(self):
-    #     url = reverse("lms:lesson_update", args=(self.lesson.pk,))
-    #     data = {"name": "Урок тестовый"}
-    #     response = self.client.patch(url, data)
-    #     data = response.json()
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(data.get("name"), "Урок тестовый")
-    #
-    # def test_lesson_delete(self):
-    #     url = reverse("lms:lesson_delete", args=(self.lesson.pk,))
-    #     response = self.client.delete(url)
-    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-    #     self.assertEqual(Lesson.objects.all().count(), 0)
-    #
-    # def test_lesson_list(self):
-    #     url = reverse("lms:lesson_list")
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #
-    # def test_subscribe_course(self):
-    #     url = reverse("lms:subscribe-unsubscribe")
-    #     data = {
-    #         "course_id": self.course.id,
-    #     }
-    #     response = self.client.post(url, data)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(response.data["message"], "Подписка добавлена.")
-    #     self.assertTrue(
-    #         Subscription.objects.filter(user=self.user, course=self.course).exists()
-    #     )
+    def test_habbit_list(self):
+        url = reverse("habits:habit-list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_habit_update(self):
+        url = reverse("habits:habit-detail", args=(self.habit.pk,))
+        data = {"action": "Любое действие"}
+        response = self.client.patch(url, data)
+        data = response.json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data.get("action"), "Любое действие")
+
+
+    def test_habit_delete(self):
+        url = reverse("habits:habit-detail", args=(self.habit.pk,))
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Habit.objects.all().count(), 0)
+
+    @patch('habits.services.requests.get')  # Патчмим модуль requests.get
+    def test_successful_send(self, mock_get):
+        """
+        Тестируем успешную отправку сообщения
+        """
+        chat_id = '123'
+        message = 'Test Message'
+
+        # Настройка моков
+        mock_response = mock_get.return_value
+        mock_response.status_code = 200  # Устанавливаем успешный статус
+        mock_response.ok = True
+        mock_response.raise_for_status.side_effect = None  # Нет ошибок
+
+        # Выполняем нашу функцию
+        send_telegram_message(chat_id, message)
+
+        # Проверяем правильность вызова запроса
+        expected_url = f"{settings.TELEGRAM_URL}{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        mock_get.assert_called_once_with(expected_url, params={'text': message, 'chat_id': chat_id})
+
+
+    @patch('habits.services.requests.get')  # Патчмим модуль requests.get
+    def test_successful_send(self, mock_get):
+        """
+        Тестируем успешную отправку сообщения
+        """
+        chat_id = '123'
+        message = 'Test Message'
+
+        # Настройка моков
+        mock_response = mock_get.return_value
+        mock_response.status_code = 200  # Устанавливаем успешный статус
+        mock_response.ok = True
+        mock_response.raise_for_status.side_effect = None  # Нет ошибок
+
+        # Выполняем нашу функцию
+        send_telegram_message(chat_id, message)
+
+        # Проверяем правильность вызова запроса
+        expected_url = f"{settings.TELEGRAM_URL}{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        mock_get.assert_called_once_with(expected_url, params={'text': message, 'chat_id': chat_id})
+
+    @patch('habits.services.requests.get')
+    def test_failed_send(self, mock_get):
+        """
+        Тестируем случай, когда произошла ошибка при отправке сообщения
+        """
+        chat_id = '123'
+        message = 'Test Message'
+
+        # Настройка моков
+        mock_response = mock_get.return_value
+        mock_response.status_code = 400  # Ошибка (Bad Request)
+        mock_response.ok = False
+        mock_response.text = "Ошибка при отправке сообщения."
+        mock_response.raise_for_status.side_effect = requests.HTTPError('Bad request', response=mock_response)
+
+        # Выполняем нашу функцию
+        with pytest.raises(requests.HTTPError):
+            send_telegram_message(chat_id, message)
+
+        # Проверяем, что запрос был отправлен
+        expected_url = f"{settings.TELEGRAM_URL}{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
+        mock_get.assert_called_once_with(expected_url, params={'text': message, 'chat_id': chat_id})
