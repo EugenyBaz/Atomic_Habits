@@ -8,6 +8,7 @@ class HabitSerializer(serializers.ModelSerializer):
         model = Habit
         fields = "__all__"
 
+
 class PublicHabitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Habit

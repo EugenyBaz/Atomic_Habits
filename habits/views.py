@@ -1,5 +1,5 @@
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from habits.models import Habit
@@ -23,10 +23,9 @@ class HabitViewSet(ModelViewSet):
         habit.save()
 
 
-
 class PublicHabitViewSet(ModelViewSet):
     queryset = Habit.objects.filter(public=True)
     serializer_class = PublicHabitSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = MyPagination
-    http_method_names = ['get']
+    http_method_names = ["get"]

@@ -2,7 +2,7 @@ from datetime import time, timedelta
 
 from celery import shared_task
 from django.utils import timezone
-from django.utils.timezone import now, localtime
+from django.utils.timezone import localtime, now
 from django_celery_beat.schedulers import logger
 
 from habits.models import Habit
@@ -19,18 +19,20 @@ def send_message_start_actions():
     formatted_time = time(current_local_time.hour, current_local_time.minute)
     print(f"Отформатированное  время: {formatted_time}")
 
-    habits = Habit.objects.filter(
-        owner__isnull=False,
-        time=formatted_time)
+    habits = Habit.objects.filter(owner__isnull=False, time=formatted_time)
 
     for habit in habits:
         if habit.owner.tg_chat_id:
-            print (habit.owner.tg_chat_id)
+            print(habit.owner.tg_chat_id)
             try:
                 message = f"Пора {habit.action.lower()}!"
                 send_telegram_message(habit.owner.tg_chat_id, message)
-                logger.info(f"Сообщение успешно отправлено пользователю {habit.owner.email}.")
+                logger.info(
+                    f"Сообщение успешно отправлено пользователю {habit.owner.email}."
+                )
             except Exception as e:
-                logger.error(f"Ошибка отправки сообщения пользователю {habit.owner.email}: {e}")
+                logger.error(
+                    f"Ошибка отправки сообщения пользователю {habit.owner.email}: {e}"
+                )
 
-    return f'Отправлено такое количество привычек: {len(habits)}'
+    return f"Отправлено такое количество привычек: {len(habits)}"

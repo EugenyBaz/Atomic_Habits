@@ -1,11 +1,12 @@
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from habits.models import Habit
 from users.models import User
-from users.serializers import UserSerializer, PublicUserSerializer, RegisterSerializer
+from users.serializers import (PublicUserSerializer, RegisterSerializer,
+                               UserSerializer)
 
 
 class RegistrationView(CreateAPIView):
@@ -28,7 +29,6 @@ class UserViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action == "list":
             return PublicUserSerializer
         return UserSerializer
-

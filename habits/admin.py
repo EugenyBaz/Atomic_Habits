@@ -5,7 +5,7 @@ from habits.models import Habit
 
 @admin.register(Habit)
 class HabitAdmin(admin.ModelAdmin):
-    list_display= (
+    list_display = (
         "id",
         "user",
         "place",
@@ -19,4 +19,3 @@ class HabitAdmin(admin.ModelAdmin):
         "public",
     )
     ordering = ("id",)
-
