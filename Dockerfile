@@ -1,28 +1,22 @@
-# Используем Python 3.12 slim-образ
-FROM python:3.12-slim
+FROM python:3.12-slim-bullseye
 
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Обновляем пакеты и устанавливаем необходимые зависимости
-RUN apt-get update \
-  && apt-get install -y build-essential libpq-dev \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+# Устанавливаем необходимые зависимости и очищаем кэш
+RUN apt-get update && \
+    apt-get install -y build-essential libpq-dev wget gnupg ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-# Копируем pyproject.toml и poetry.lock
 COPY pyproject.toml poetry.lock ./
 
-# Устанавливаем Poetry глобально
-RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python -
-ENV PATH="/opt/poetry/bin:$PATH"
+# Установка Poetry
+RUN wget -O- https://install.python-poetry.org | PYTHONNOUSERSITE=1 python -
 
-# Создаем виртуальное окружение и устанавливаем зависимости
-RUN poetry config virtualenvs.create false \
-  && poetry install --no-root
+ENV PATH="/root/.local/bin:$PATH"
 
-# Копируем остальные файлы приложения
+# Настройка виртуального окружения и установка зависимостей
+RUN poetry config virtualenvs.create false && poetry install --no-root
+
 COPY . .
 
-# Открываем порт для приложения
 EXPOSE 8000
