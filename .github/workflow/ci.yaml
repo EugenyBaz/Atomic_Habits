@@ -3,7 +3,8 @@ name: Django CI
 on:
   push:
     branches:
-      - main           # Основная ветвь
+      - main            # Основная ветвь
+      - develop
       - features       # Добавляем ветвь features
   pull_request:
     types: [opened, synchronize, reopened]
