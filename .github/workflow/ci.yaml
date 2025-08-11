@@ -1,6 +1,12 @@
 name: Django CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main           # Основная ветвь
+      - features       # Добавляем ветвь features
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   lint:
