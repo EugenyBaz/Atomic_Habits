@@ -45,6 +45,20 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: [ '5432:5432' ]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -70,12 +84,24 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-root
 
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            sleep 1
+          done
 
-      - name: Run migrations
-        run: poetry run python manage.py migrate
+      - name: Run migrations and tests
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          SECRET_KEY: secret
+          POSTGRES_HOST: localhost
 
-      - name: Run tests
-        run: poetry run python manage.py test
+        run: |
+          poetry run python manage.py migrate
+          poetry run python manage.py test
+
 
   build:
     needs: test
