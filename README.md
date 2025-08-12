@@ -27,6 +27,11 @@
 - настроен проект для работы с celery и celery-beat
 - подключен и настроен вывод документации для проекта
 - настроен CORS
+- подготовлены Dockerfile
+- составлен docker-compose.yaml
+- добавлен .dockerignore
+- подготовлен директория .github с workflows 
+- составлен ci.yaml
 
 
 
