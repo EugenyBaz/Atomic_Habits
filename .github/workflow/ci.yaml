@@ -5,7 +5,7 @@ on:
     branches:
       - main            # Основная ветвь
       - develop
-      - features       # Добавляем ветвь features
+      - feature      # Добавляем ветвь features
   pull_request:
     types: [opened, synchronize, reopened]
 
