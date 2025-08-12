@@ -20,7 +20,7 @@ class Habit(models.Model):
     pleasant_habit = models.BooleanField(
         default=False, verbose_name="Признак приятной привычки"
     )
-    # Связанная привычка — привычка, которая связана с другой привычкой, важно указывать для полезных привычек, но не для приятных.
+
     related_habit = models.ForeignKey(
         "self",
         null=True,
@@ -40,7 +40,7 @@ class Habit(models.Model):
     execution_time = models.PositiveSmallIntegerField(
         validators=[ExecutionTimeValidator(120)], verbose_name="Время на выполнение"
     )
-    # Признак публичности — привычки можно публиковать в общий доступ, чтобы другие пользователи могли брать в пример чужие привычки.
+
     public = models.BooleanField(default=False, verbose_name="Признак публичности")
 
     owner = models.ForeignKey(

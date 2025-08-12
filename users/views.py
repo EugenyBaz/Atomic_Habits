@@ -1,9 +1,6 @@
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
-
-from habits.models import Habit
 from users.models import User
 from users.serializers import (PublicUserSerializer, RegisterSerializer,
                                UserSerializer)

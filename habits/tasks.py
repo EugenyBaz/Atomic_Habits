@@ -1,13 +1,10 @@
-from datetime import time, timedelta
-
+from datetime import time
 from celery import shared_task
 from django.utils import timezone
-from django.utils.timezone import localtime, now
+from django.utils.timezone import localtime
 from django_celery_beat.schedulers import logger
-
 from habits.models import Habit
 from habits.services import send_telegram_message
-from users.models import User
 
 
 @shared_task

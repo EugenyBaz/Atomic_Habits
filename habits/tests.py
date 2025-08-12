@@ -3,9 +3,8 @@ from unittest.mock import patch
 
 import requests
 from django.urls import reverse
-from rest_framework import settings, status
+from rest_framework import status
 from rest_framework.test import APITestCase
-
 from config import settings
 from habits.models import Habit
 from habits.services import send_telegram_message
@@ -81,29 +80,6 @@ class HabitTestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Habit.objects.all().count(), 0)
-
-    @patch("habits.services.requests.get")  # Патчмим модуль requests.get
-    def test_successful_send(self, mock_get):
-        """Тестируем успешную отправку сообщения"""
-        chat_id = "123"
-        message = "Test Message"
-
-        # Настройка моков
-        mock_response = mock_get.return_value
-        mock_response.status_code = 200  # Устанавливаем успешный статус
-        mock_response.ok = True
-        mock_response.raise_for_status.side_effect = None  # Нет ошибок
-
-        # Выполняем нашу функцию
-        send_telegram_message(chat_id, message)
-
-        # Проверяем правильность вызова запроса
-        expected_url = (
-            f"{settings.TELEGRAM_URL}{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
-        )
-        mock_get.assert_called_once_with(
-            expected_url, params={"text": message, "chat_id": chat_id}
-        )
 
     @patch("habits.services.requests.get")  # Патчмим модуль requests.get
     def test_successful_send(self, mock_get):
