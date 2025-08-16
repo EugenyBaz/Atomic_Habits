@@ -136,6 +136,6 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic-habits:${{ github.sha }}
             docker stop atomic-habits || true
             docker rm atomic-habits || true
-            docker compose -f docker-compose.yml down
-            docker compose -f docker-compose.yml up -d
+            docker compose -f docker-compose.yaml down
+            docker compose -f docker-compose.yaml up -d
           EOF
