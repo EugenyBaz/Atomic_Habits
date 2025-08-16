@@ -136,5 +136,6 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic-habits:${{ github.sha }}
             docker stop atomic-habits || true
             docker rm atomic-habits || true
-            docker run -d --name atomic-habits -p 8080:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/atomic-habits:${{ github.sha }}
+            docker compose down
+            docker compose up  -d
           EOF
