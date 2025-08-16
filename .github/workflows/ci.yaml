@@ -130,8 +130,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Copy docker-compose.yaml to remote server
-        run: scp -o StrictHostKeyChecking=no docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/Atomic-Habits
 
       - name: Deploy to Server
         run: |
@@ -139,7 +137,5 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic-habits:${{ github.sha }}
             docker stop atomic-habits || true
             docker rm atomic-habits || true
-            cd ~/Atomic-Habits
-            docker compose -f docker-compose.yaml down
-            docker compose -f docker-compose.yaml up -d
+            docker run -d --name atomic-habits -p 8080:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/atomic-habits:${{ github.sha }}
           EOF
